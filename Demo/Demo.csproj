@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libs\Schwab.csproj" />
+    <ProjectReference Include="..\Libs\SchwabBroker.csproj" />
   </ItemGroup>
 
 </Project>

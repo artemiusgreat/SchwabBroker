@@ -1,7 +1,6 @@
 using Schwab;
 using Schwab.Enums;
 using Schwab.Messages;
-using Schwab.Services;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -41,11 +40,8 @@ namespace Demo
 
       // Subscriptions
 
-      broker.OnDom += o => Console.WriteLine(JsonSerializer.Serialize(o));
-      broker.OnPrice += o => Console.WriteLine(JsonSerializer.Serialize(o));
-
-      await broker.SubscribeToDom("SPY", DomEnum.NYSE_BOOK);
-      await broker.Subscribe("SPY", SubscriptionEnum.LEVELONE_EQUITIES);
+      await broker.SubscribeToDom("SPY", DomEnum.NYSE_BOOK, o => Console.WriteLine(JsonSerializer.Serialize(o)));
+      await broker.Subscribe("SPY", SubscriptionEnum.LEVELONE_EQUITIES, o => Console.WriteLine(JsonSerializer.Serialize(o)));
 
       // OCO order
 

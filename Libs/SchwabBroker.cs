@@ -38,6 +38,16 @@ namespace Schwab
     protected IList<IDisposable> connections;
 
     /// <summary>
+    /// Order book action
+    /// </summary>
+    protected Action<DomMessage> onDom = o => { };
+
+    /// <summary>
+    /// Price action
+    /// </summary>
+    protected Action<PriceMessage> onPrice = o => { };
+
+    /// <summary>
     /// Socket connection
     /// </summary>
     public virtual ClientWebSocket Streamer { get; protected set; }
@@ -78,16 +88,6 @@ namespace Schwab
     public virtual string ClientSecret { get; set; }
 
     /// <summary>
-    /// Order book action
-    /// </summary>
-    public virtual Action<DomMessage> OnDom { get; set; } = o => { };
-
-    /// <summary>
-    /// Price action
-    /// </summary>
-    public virtual Action<PriceMessage> OnPrice { get; set; } = o => { };
-
-    /// <summary>
     /// Constructor
     /// </summary>
     public SchwabBroker()
@@ -126,9 +126,12 @@ namespace Schwab
     /// </summary>
     /// <param name="instrument"></param>
     /// <param name="assetType"></param>
-    public virtual async Task<bool> Subscribe(string instrument, SubscriptionEnum assetType)
+    /// <param name="action"></param>
+    public virtual async Task<bool> Subscribe(string instrument, SubscriptionEnum assetType, Action<PriceMessage> action)
     {
       var streamData = UserData.Streamer.FirstOrDefault();
+
+      onPrice += action;
 
       await SendStream(new StreamInputMessage
       {
@@ -152,9 +155,12 @@ namespace Schwab
     /// </summary>
     /// <param name="instrument"></param>
     /// <param name="domType"></param>
-    public virtual async Task<bool> SubscribeToDom(string instrument, DomEnum domType)
+    /// <param name="action"></param>
+    public virtual async Task<bool> SubscribeToDom(string instrument, DomEnum domType, Action<DomMessage> action)
     {
       var streamData = UserData.Streamer.FirstOrDefault();
+
+      onDom += action;
 
       await SendStream(new StreamInputMessage
       {
@@ -577,7 +583,7 @@ namespace Schwab
             continue;
           }
 
-          OnPrice(price);
+          onPrice(price);
         }
       }
     }
@@ -624,7 +630,7 @@ namespace Schwab
 
           }).OrderBy(o => o.Last)];
 
-          OnDom(dom);
+          onDom(dom);
         }
       }
     }
