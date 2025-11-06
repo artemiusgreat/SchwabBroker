@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{4CE57B02-B8E5-4417-92B2-0244E7089298}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schwab", "Libs\Schwab.csproj", "{A0DF8C6C-A489-EA2F-CED6-C781675FC2B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schwab", "Libs\SchwabBroker.csproj", "{A0DF8C6C-A489-EA2F-CED6-C781675FC2B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
