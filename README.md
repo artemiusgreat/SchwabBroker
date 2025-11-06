@@ -1,6 +1,7 @@
 # Schwab API wrapper
 
-Minimalistic async wrapper around Schwab Trader API.
+Minimalistic async wrapper around Schwab Trader API. 
+A part of a trading framework [Terminal](https://github.com/Indemos/Terminal).
 
 # Status 
 
