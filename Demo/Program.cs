@@ -16,10 +16,6 @@ namespace Demo
       var cleaner = CancellationToken.None;
       var broker = new SchwabBroker
       {
-        ClientId = "",
-        ClientSecret = "",
-        AccessToken = "",
-        RefreshToken = ""
       };
 
       await broker.Connect();
@@ -37,6 +33,7 @@ namespace Demo
       var summary = await broker.GetAccountSummary(new() { AccountCode = accountCode }, cleaner);
       var orders = await broker.GetOrders(new() { AccountCode = accountCode, FromEnteredTime = minDate, ToEnteredTime = maxDate }, cleaner);
       var positions = await broker.GetPositions(new() { AccountCode = accountCode }, cleaner);
+      var actions = await broker.GetTransactions(new() { AccountCode = accountCode, Types = "TRADE", StartDate = minDate, EndDate = maxDate }, cleaner);
 
       // Subscriptions
 

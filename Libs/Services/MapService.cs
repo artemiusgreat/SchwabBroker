@@ -45,7 +45,8 @@ namespace Schwab.Services
           new Converters.MessageConverter<string>(),
           new Converters.MessageConverter<DateOnly>(),
           new Converters.MessageConverter<TimeOnly>(),
-          new Converters.MessageConverter<DateTime>()
+          new Converters.MessageConverter<DateTime>(),
+          new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)
         },
         TypeInfoResolver = GetResolver()
       };

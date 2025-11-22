@@ -5,6 +5,9 @@ namespace Schwab.Queries
 
   public partial class TransactionQuery
   {
+    [JsonIgnore]
+    public string AccountCode { get; set; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("endDate")]
     public DateTime? EndDate { get; set; }

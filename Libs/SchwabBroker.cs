@@ -373,6 +373,29 @@ namespace Schwab
     }
 
     /// <summary>
+    /// Get completed orders
+    /// </summary>
+    /// <param name="criteria"></param>
+    /// <param name="cleaner"></param>
+    public virtual async Task<IList<TransactionMessage>> GetTransactions(TransactionQuery criteria, CancellationToken cleaner)
+    {
+      var props = new Hashtable();
+
+      Op(criteria?.Types, o => props["types"] = o);
+      Op(criteria?.Symbol, o => props["symbol"] = o);
+      Op(criteria?.StartDate, o => props["startDate"] = $"{o:yyyy-MM-ddTHH:mm:ss.fffZ}");
+      Op(criteria?.EndDate, o => props["endDate"] = $"{o:yyyy-MM-ddTHH:mm:ss.fffZ}");
+
+      var query = new SenderQuery
+      {
+        Cleaner = cleaner,
+        Source = $"{DataUri}/trader/v1/accounts/{criteria.AccountCode}/transactions".SetQueryParams(props)
+      };
+
+      return await Send<TransactionMessage[]>(query);
+    }
+
+    /// <summary>
     /// Send data to the API
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -391,7 +414,7 @@ namespace Schwab
       }
 
       var response = await message
-        .SendAsync(query.Action ?? HttpMethod.Get, data, HttpCompletionOption.ResponseContentRead, CancellationToken.None)
+        .SendAsync(query.Action ?? HttpMethod.Get, data, HttpCompletionOption.ResponseContentRead, query.Cleaner ?? CancellationToken.None)
         .ConfigureAwait(false);
 
       foreach (var o in query.Headers ?? [])
