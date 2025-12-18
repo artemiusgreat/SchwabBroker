@@ -53,6 +53,11 @@ namespace Schwab
     public virtual Action<Exception> OnError { get; set; } = o => { };
 
     /// <summary>
+    /// Token action
+    /// </summary>
+    public virtual Action<ScopeMessage> OnToken { get; set; } = o => { };
+
+    /// <summary>
     /// Socket connection
     /// </summary>
     public virtual ClientWebSocket Streamer { get; protected set; }
@@ -475,6 +480,8 @@ namespace Schwab
         AccessToken = scope.AccessToken;
         RefreshToken = scope.RefreshToken;
       }
+
+      OnToken(scope);
 
       return scope;
     }
