@@ -48,6 +48,11 @@ namespace Schwab
     protected Action<PriceMessage> onPrice = o => { };
 
     /// <summary>
+    /// Error action
+    /// </summary>
+    public virtual Action<Exception> OnError { get; set; } = o => { };
+
+    /// <summary>
     /// Socket connection
     /// </summary>
     public virtual ClientWebSocket Streamer { get; protected set; }
@@ -540,33 +545,40 @@ namespace Schwab
       {
         while (Streamer.State is WebSocketState.Open)
         {
-          var streamResponse = await Streamer.ReceiveAsync(new ArraySegment<byte>(data), cleaner);
-          var content = Encoding.UTF8.GetString(data, 0, streamResponse.Count);
-          var message = JsonNode.Parse(content);
-
-          if (message["data"] is not null)
+          try
           {
-            var streamItems = message["data"]
-              .AsArray()
-              .Select(o => o.Deserialize<StreamDataMessage>());
+            var streamResponse = await Streamer.ReceiveAsync(new ArraySegment<byte>(data), cleaner);
+            var content = Encoding.UTF8.GetString(data, 0, streamResponse.Count);
+            var message = JsonNode.Parse(content);
 
-            var points = streamItems
-              .Where(o => Enum.IsDefined(typeof(SubscriptionEnum), o.Service))
-              .ToList();
-
-            var doms = streamItems
-              .Where(o => Enum.IsDefined(typeof(DomEnum), o.Service))
-              .ToList();
-
-            if (points.Count is not 0)
+            if (message["data"] is not null)
             {
-              OnPriceMessage(points, content);
-            }
+              var streamItems = message["data"]
+                .AsArray()
+                .Select(o => o.Deserialize<StreamDataMessage>());
 
-            if (doms.Count is not 0)
-            {
-              OnDomMessage(doms);
+              var points = streamItems
+                .Where(o => Enum.IsDefined(typeof(SubscriptionEnum), o.Service))
+                .ToList();
+
+              var doms = streamItems
+                .Where(o => Enum.IsDefined(typeof(DomEnum), o.Service))
+                .ToList();
+
+              if (points.Count is not 0)
+              {
+                OnPriceMessage(points, content);
+              }
+
+              if (doms.Count is not 0)
+              {
+                OnDomMessage(doms);
+              }
             }
+          }
+          catch (Exception e)
+          {
+            OnError(e);
           }
         }
       });
