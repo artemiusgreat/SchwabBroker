@@ -18,8 +18,7 @@ namespace Demo
       {
       };
 
-      await broker.Connect();
-      await broker.ConnectStream(cleaner);
+      broker.AccessToken = (await broker.Authenticate()).AccessToken;
 
       // Requests
 
@@ -37,6 +36,7 @@ namespace Demo
 
       // Subscriptions
 
+      await broker.Stream(cleaner);
       await broker.SubscribeToDom("SPY", DomEnum.NYSE_BOOK, o => Console.WriteLine(JsonSerializer.Serialize(o)));
       await broker.Subscribe("SPY", SubscriptionEnum.LEVELONE_EQUITIES, o => Console.WriteLine(JsonSerializer.Serialize(o)));
 
@@ -64,24 +64,24 @@ namespace Demo
         Legs = [asset]
       });
 
-      var ocoResponse = await broker.SendOrder(ocoOrder, accountCode, cleaner);
-      var ocoStatus = await broker.ClearOrder(ocoResponse.OrderId, accountCode, cleaner);
+      //var ocoResponse = await broker.SendOrder(ocoOrder, accountCode, cleaner);
+      //var ocoStatus = await broker.ClearOrder(ocoResponse.OrderId, accountCode, cleaner);
 
-      // Option order
+      //// Option order
 
-      var optionOrder = new OrderMessage(new()
-      {
-        Price = 0.05,
-        Strategy = OrderStrategyEnum.SINGLE,
-        OrderType = OrderTypeEnum.NET_DEBIT,
-        Legs = [
-          new("F251107C13", 1, AssetTypeEnum.OPTION, InstructionEnum.BUY_TO_OPEN),
-          new("F251107C15", 1, AssetTypeEnum.OPTION, InstructionEnum.SELL_TO_OPEN)
-        ]
-      });
+      //var optionOrder = new OrderMessage(new()
+      //{
+      //  Price = 0.05,
+      //  Strategy = OrderStrategyEnum.SINGLE,
+      //  OrderType = OrderTypeEnum.NET_DEBIT,
+      //  Legs = [
+      //    new("F251107C13", 1, AssetTypeEnum.OPTION, InstructionEnum.BUY_TO_OPEN),
+      //    new("F251107C15", 1, AssetTypeEnum.OPTION, InstructionEnum.SELL_TO_OPEN)
+      //  ]
+      //});
 
-      var optionResponse = await broker.SendOrder(optionOrder, accountCode, cleaner);
-      var optionStatus = await broker.ClearOrder(optionResponse.OrderId, accountCode, cleaner);
+      //var optionResponse = await broker.SendOrder(optionOrder, accountCode, cleaner);
+      //var optionStatus = await broker.ClearOrder(optionResponse.OrderId, accountCode, cleaner);
 
       Console.ReadKey();
 

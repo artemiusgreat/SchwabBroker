@@ -53,11 +53,6 @@ namespace Schwab
     public virtual Action<Exception> OnError { get; set; } = o => { };
 
     /// <summary>
-    /// Token action
-    /// </summary>
-    public virtual Action<ScopeMessage> OnToken { get; set; } = o => { };
-
-    /// <summary>
     /// Socket connection
     /// </summary>
     public virtual ClientWebSocket Streamer { get; protected set; }
@@ -113,23 +108,6 @@ namespace Schwab
     /// Dispose
     /// </summary>
     public virtual void Dispose() => Disconnect();
-
-    /// <summary>
-    /// Connect
-    /// </summary>
-    public virtual async Task<bool> Connect()
-    {
-      var interval = new System.Timers.Timer(TimeSpan.FromMinutes(1));
-
-      await UpdateToken($"{DataUri}/v1/oauth/token");
-
-      interval.Enabled = true;
-      interval.Elapsed += async (sender, e) => await UpdateToken($"{DataUri}/v1/oauth/token");
-
-      connections.Add(interval);
-
-      return true;
-    }
 
     /// <summary>
     /// Subscribe to data streams
@@ -444,11 +422,9 @@ namespace Schwab
     /// <summary>
     /// Refresh token
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    public virtual async Task<ScopeMessage> UpdateToken(string source)
+    public virtual async Task<ScopeMessage> Authenticate()
     {
-      var message = $"{new UriBuilder(source)}"
+      var message = $"{new UriBuilder($"{DataUri}/v1/oauth/token")}"
         .WithHeader("Accept", "application/json")
         .WithHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}"))}");
 
@@ -473,17 +449,7 @@ namespace Schwab
         .ReadAsStringAsync()
         .ConfigureAwait(false);
 
-      var scope = JsonSerializer.Deserialize<ScopeMessage>(responseContent, map.Options);
-
-      if (scope is not null)
-      {
-        AccessToken = scope.AccessToken;
-        RefreshToken = scope.RefreshToken;
-      }
-
-      OnToken(scope);
-
-      return scope;
+      return JsonSerializer.Deserialize<ScopeMessage>(responseContent, map.Options);
     }
 
     /// <summary>
@@ -521,7 +487,7 @@ namespace Schwab
     /// Web socket stream
     /// </summary>
     /// <param name="cleaner"></param>
-    public virtual async Task<ClientWebSocket> ConnectStream(CancellationToken cleaner)
+    public virtual async Task<ClientWebSocket> Stream(CancellationToken cleaner)
     {
       Streamer = new ClientWebSocket();
       UserData = await GetUserData(cleaner);
