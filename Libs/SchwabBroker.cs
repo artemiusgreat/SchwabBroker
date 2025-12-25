@@ -449,7 +449,15 @@ namespace Schwab
         .ReadAsStringAsync()
         .ConfigureAwait(false);
 
-      return JsonSerializer.Deserialize<ScopeMessage>(responseContent, map.Options);
+      var scope = JsonSerializer.Deserialize<ScopeMessage>(responseContent, map.Options);
+
+      if (scope is not null)
+      {
+        AccessToken = scope.AccessToken;
+        RefreshToken = scope.RefreshToken;
+      }
+
+      return scope;
     }
 
     /// <summary>
